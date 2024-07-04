@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.android.examdetector.ui.theme.ExamDetectorTheme
+import com.android.examdetector.views.NavManager
 import org.opencv.android.OpenCVLoader
 
 class MainActivity : ComponentActivity() {
@@ -23,17 +24,12 @@ class MainActivity : ComponentActivity() {
                 println("OpenCV loaded successfully")
             else
                 println("OpenCV not loaded")
-            ExamDetectorTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            NavManager()
                 }
             }
         }
-    }
-}
+
+
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
