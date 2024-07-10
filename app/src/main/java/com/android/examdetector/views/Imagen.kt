@@ -5,7 +5,9 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.os.Build
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -61,14 +63,38 @@ fun Seleccionarimagen(navController: NavController, imageViewModel: ImageViewMod
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            // Manejar resultado de la galería
+            val imageUri = result.data?.data
+            val bitmap = if (imageUri != null) {
+                MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
+            } else {
+                null
+            }
+            if (bitmap != null) {
+                val photoBase64 = bitmapToBase64(bitmap)
+                imageViewModel.image.value = photoBase64
+                navController.navigate("VerResultadoImagen")
+            }
         }
     }
 
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
+    val requestCameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        // Manejar resultado de la solicitud de permiso
+        if (isGranted) {
+            Toast.makeText(context, "Permiso de cámara concedido", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val requestGalleryPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Toast.makeText(context, "Permiso de galería concedido", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Permiso de galería denegado", Toast.LENGTH_SHORT).show()
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -123,18 +149,24 @@ fun Seleccionarimagen(navController: NavController, imageViewModel: ImageViewMod
                 val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 cameraLauncher.launch(cameraIntent)
             } else {
-                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }) {
             Text(text = "Abrir Cámara")
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val galleryIntent =
+                    Intent(Intent.ACTION_OPEN_DOCUMENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                galleryLauncher.launch(galleryIntent)
+            }
             if (hasGalleryPermission) {
-                val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                val galleryIntent =
+                    Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
                 galleryLauncher.launch(galleryIntent)
             } else {
-                requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                requestGalleryPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }) {
             Text(text = "Abrir Galería")

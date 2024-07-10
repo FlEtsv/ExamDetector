@@ -1,5 +1,7 @@
 package org.opencv.samples.recorder
 
+import android.content.Context
+import com.android.examdetector.utils.saveImageToGallery
 import org.opencv.core.*
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
@@ -8,34 +10,25 @@ import kotlin.math.sqrt
 
 class ExtraerColumnas {
     companion object {
-        fun init(image: String): List<Mat> {
-            System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
-
-            // Image path
-            val imagePath = image
-            val columns = extractColumns(imagePath)
+        fun init(image: Mat, context: Context): List<Mat> {
+            val columns = extractColumns(image)
 
             // Process each column to find things within them
             var columnNumber = 1
             for (column in columns) {
-                val outputPath = "src/img/column_$columnNumber.png"
-                Imgcodecs.imwrite(outputPath, column)
-                println("Column $columnNumber saved as $outputPath")
+                //saveImageToGallery(column, context, "column_$columnNumber.png")
+                //println("Column $columnNumber saved as column_$columnNumber.png")
                 columnNumber++
             }
             return columns
         }
 
-        fun extractColumns(imagePath: String): List<Mat> {
-            val src = Imgcodecs.imread(imagePath)
-            if (src.empty()) {
-                println("Image could not be opened.")
-                return emptyList()
-            }
+        fun extractColumns(imagePath: Mat): List<Mat> {
+
 
             // Convert the image to grayscale
             val gray = Mat()
-            Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY)
+            Imgproc.cvtColor(imagePath, gray, Imgproc.COLOR_BGR2GRAY)
 
             // Apply a smoothing filter to reduce noise
             Imgproc.GaussianBlur(gray, gray, Size(5.0, 5.0), 0.0)
@@ -53,7 +46,7 @@ class ExtraerColumnas {
             contours.sortBy { Imgproc.boundingRect(it).x }
 
             // Calculate the total area of the image
-            val totalArea = src.rows() * src.cols()
+            val totalArea = imagePath.rows() * imagePath.cols()
             val minArea = totalArea * 0.024 // 5% of the total area
 
             // Select the 5 largest columns that meet the aspect ratio, minimum area and minimum distance between centers
@@ -84,7 +77,7 @@ class ExtraerColumnas {
             // Crop and save each column as a new image
             val columnImages = mutableListOf<Mat>()
             for (column in columns) {
-                val columnImg = Mat(src, column)
+                val columnImg = Mat(imagePath, column)
                 columnImages.add(columnImg)
             }
 

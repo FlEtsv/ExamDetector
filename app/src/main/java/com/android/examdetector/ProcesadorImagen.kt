@@ -1,6 +1,9 @@
 package org.opencv.samples.recorder
 
+import android.content.Context
 import android.os.Build
+import com.android.examdetector.utils.escalarImagen
+import com.android.examdetector.utils.saveImageToGallery
 import org.opencv.core.*
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
@@ -14,16 +17,17 @@ object ProcesadorImagen {
      * @param tipo   El tipo de procesamiento (0 para columnas, 1 para DNI)
      * @param contador El contador de imágenes procesadas
      */
-    fun detectarColumnas(imagen: Mat, tipo: Int, contador: Int, originalImagen: Mat, coordenadas: Rect) {
+    fun detectarColumnas(imagen: Mat, tipo: Int, contador: Int, originalImagen: Mat, coordenadas: Rect, context: Context) {
         if (imagen.empty()) {
             println("No se pudo abrir la imagen.")
             return
         }
 
+
         val imagenProcesada = auxiliar.preprocesarImagen(imagen)
 
         // Guardar la imagen preprocesada
-        Imgcodecs.imwrite("src/img/preprocesada$contador.png", imagenProcesada)
+        //saveImageToGallery(imagenProcesada, context, "preprocesada$contador.png")
 
         val rect = Rect(0, 0, imagen.cols(), imagen.rows())
 
@@ -34,7 +38,7 @@ object ProcesadorImagen {
         }
 
         // Guardar la imagen resultante
-        Imgcodecs.imwrite("src/img/result$contador.png", imagen)
+        //saveImageToGallery(imagen, context,"resultante$contador.png")
     }
 
 
@@ -191,7 +195,7 @@ object ProcesadorImagen {
         }
 
         // Ajustar los parámetros según sea necesario 100, 30, 13, 21 valores clave
-        Imgproc.HoughCircles(imagenRectangulo, circulos, Imgproc.CV_HOUGH_GRADIENT, 1.0, minDist.toDouble(), 100.0, 30.0, 21, 37)
+        Imgproc.HoughCircles(imagenRectangulo, circulos, Imgproc.CV_HOUGH_GRADIENT, 1.0, minDist.toDouble(), 100.0, 30.0, 20, 38)
 
         val centrosCirculos = ArrayList<Point>()
         val radiosCirculos = ArrayList<Int>()
