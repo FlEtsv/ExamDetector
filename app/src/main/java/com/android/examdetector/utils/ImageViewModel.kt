@@ -5,4 +5,5 @@ import androidx.lifecycle.ViewModel
 
 class ImageViewModel : ViewModel() {
     val image: MutableLiveData<String> = MutableLiveData()
+    val isProcessing: MutableLiveData<Boolean> = MutableLiveData(false)
 }

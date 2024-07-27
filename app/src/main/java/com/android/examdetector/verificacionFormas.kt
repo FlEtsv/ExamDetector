@@ -74,7 +74,7 @@ object verificacionFormas {
 
         val intensidadMedia = sumaIntensidades / contadorPixeles
         // Definir un umbral para decidir si el círculo está relleno
-        return intensidadMedia < 80
+        return intensidadMedia < 75
     }
 
 

@@ -7,7 +7,9 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Log
 import org.opencv.android.Utils
+import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
@@ -26,11 +28,30 @@ fun bitmapToMat(bitmap: Bitmap): Mat {
     Utils.bitmapToMat(bitmap, mat)
     return mat
 }
+fun convertirProfundidad(mat: Mat, depth: Int): Mat {
+    val matConvertida = Mat()
+    mat.convertTo(matConvertida, depth)
+    return matConvertida
+}
 fun matToBitmap(mat: Mat): Bitmap {
-    val bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
-    Utils.matToBitmap(mat, bitmap)
+    // Convertir a una profundidad compatible
+    val matConvertida = convertirProfundidad(mat, CvType.CV_8U)
+
+    // Verificar y convertir el tipo si es necesario
+    var matFinal = Mat()
+    if (matConvertida.type() != CvType.CV_8UC1 && matConvertida.type() != CvType.CV_8UC3 && matConvertida.type() != CvType.CV_8UC4) {
+        Imgproc.cvtColor(matConvertida, matFinal, Imgproc.COLOR_RGBA2BGRA)
+    } else {
+        matFinal = matConvertida
+    }
+
+    // Convertir a Bitmap
+    val bitmap = Bitmap.createBitmap(matFinal.cols(), matFinal.rows(), Bitmap.Config.ARGB_8888)
+    Utils.matToBitmap(matFinal, bitmap)
     return bitmap
 }
+
+
 
 fun escalarImagen(src: Mat): Mat {
     // Crear un objeto Size con las dimensiones deseadas
@@ -45,9 +66,20 @@ fun escalarImagen(src: Mat): Mat {
     return dst
 }
 fun saveImageToGallery(mat: Mat, context: Context, filename: String) {
+    // Convertir a una profundidad compatible
+    val matConvertida = convertirProfundidad(mat, CvType.CV_8U)
+
+    // Verificar y convertir el tipo si es necesario
+    var matFinal = Mat()
+    if (matConvertida.type() != CvType.CV_8UC1 && matConvertida.type() != CvType.CV_8UC3 && matConvertida.type() != CvType.CV_8UC4) {
+        Imgproc.cvtColor(matConvertida, matFinal, Imgproc.COLOR_RGBA2BGRA)
+    } else {
+        matFinal = matConvertida
+    }
+
     // Convertir Mat a Bitmap
-    val bmp = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
-    Utils.matToBitmap(mat, bmp)
+    val bmp = Bitmap.createBitmap(matFinal.cols(), matFinal.rows(), Bitmap.Config.ARGB_8888)
+    Utils.matToBitmap(matFinal, bmp)
 
     // Guardar la imagen en la galería
     val contentValues = ContentValues().apply {
@@ -65,3 +97,4 @@ fun saveImageToGallery(mat: Mat, context: Context, filename: String) {
         outputStream?.use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
 }
+

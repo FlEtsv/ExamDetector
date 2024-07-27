@@ -1,5 +1,6 @@
 package com.android.examdetector
 
+import ExamDetectorTheme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.android.examdetector.ui.theme.ExamDetectorTheme
 import com.android.examdetector.views.NavManager
 import org.opencv.android.OpenCVLoader
 
@@ -20,12 +20,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            if(OpenCVLoader.initDebug())
-                println("OpenCV loaded successfully")
-            else
-                println("OpenCV not loaded")
-            NavManager()
+            ExamDetectorTheme {
+                if(OpenCVLoader.initDebug())
+                    println("OpenCV loaded successfully")
+                else
+                    println("OpenCV not loaded")
+                NavManager()
                 }
+            }
+
             }
         }
 

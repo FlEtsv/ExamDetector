@@ -34,4 +34,5 @@ class Sesion {
         dniCoordinates.y = 0
     }
 
+
 }

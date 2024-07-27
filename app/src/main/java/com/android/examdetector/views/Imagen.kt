@@ -12,10 +12,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -132,44 +135,59 @@ fun Seleccionarimagen(navController: NavController, imageViewModel: ImageViewMod
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Row {
+            Spacer(modifier = Modifier.height(50.dp))
+        }
+        Row {
+
+
         Text(
-            text = "Abrir Cámara o Galería",
+            text = "Seleccionar Imagen",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Pulse un botón para abrir la cámara o la galería.",
-            fontSize = 16.sp,
-            color = Color.Gray
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            if (hasCameraPermission) {
-                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                cameraLauncher.launch(cameraIntent)
-            } else {
-                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        }) {
-            Text(text = "Abrir Cámara")
+
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val galleryIntent =
-                    Intent(Intent.ACTION_OPEN_DOCUMENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                galleryLauncher.launch(galleryIntent)
+        Row {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Puede seleccionar la imagen desde la cámara o la galería. La imagen seleccionada será procesada y se mostrará el resultado junto con la imagen original.",
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Button(onClick = {
+                if (hasCameraPermission) {
+                    val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    cameraLauncher.launch(cameraIntent)
+                } else {
+                    requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+            }, modifier = Modifier.size(150.dp, 100.dp)) {
+                Text(text = "Abrir Cámara")
             }
-            if (hasGalleryPermission) {
-                val galleryIntent =
-                    Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                galleryLauncher.launch(galleryIntent)
-            } else {
-                requestGalleryPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            Spacer(modifier = Modifier.width(24.dp)) // Use width for horizontal spacing
+            Button(onClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val galleryIntent =
+                        Intent(Intent.ACTION_OPEN_DOCUMENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    galleryLauncher.launch(galleryIntent)
+                }
+                if (hasGalleryPermission) {
+                    val galleryIntent =
+                        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    galleryLauncher.launch(galleryIntent)
+                } else {
+                    requestGalleryPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }, modifier = Modifier.size(150.dp, 100.dp)) {
+                Text(text = "Abrir Galería")
             }
-        }) {
-            Text(text = "Abrir Galería")
         }
     }
 }

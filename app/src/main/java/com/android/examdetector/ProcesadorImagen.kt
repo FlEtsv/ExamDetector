@@ -23,7 +23,6 @@ object ProcesadorImagen {
             return
         }
 
-
         val imagenProcesada = auxiliar.preprocesarImagen(imagen)
 
         // Guardar la imagen preprocesada
@@ -195,7 +194,7 @@ object ProcesadorImagen {
         }
 
         // Ajustar los parámetros según sea necesario 100, 30, 13, 21 valores clave
-        Imgproc.HoughCircles(imagenRectangulo, circulos, Imgproc.CV_HOUGH_GRADIENT, 1.0, minDist.toDouble(), 100.0, 30.0, 20, 38)
+        Imgproc.HoughCircles(imagenRectangulo, circulos, Imgproc.CV_HOUGH_GRADIENT, 1.0, minDist.toDouble(), 100.0, 30.0, 21, 37)
 
         val centrosCirculos = ArrayList<Point>()
         val radiosCirculos = ArrayList<Int>()
@@ -247,7 +246,7 @@ object ProcesadorImagen {
         }
 
         println("Respuesta $posicionAlfabetica")
-        Sesion.instance.examAnswers.add(posicionAlfabetica.toString())
+        Sesion.instance.addAnswer(posicionAlfabetica.toString())
     }
 
     private fun detectarCirculosDniletra(bordes: Mat, src: Mat, rectInterno: Rect, caso: Int, originalImagen: Mat) {
@@ -509,7 +508,7 @@ object ProcesadorImagen {
                     Imgproc.circle(originalImagen, centroOriginal, radio, Scalar(0.0, 255.0, 0.0), -1)
                     // Asignar un número de examen al círculo
                     println("Numero Examen $contadorCirculosDNI")
-                    Sesion.instance.examCode.add(contadorCirculosDNI)
+                    Sesion.instance.addExamCode(contadorCirculosDNI)
                     contadorCirculosDNI = 0
                 }
                 contadorCirculosDNI++

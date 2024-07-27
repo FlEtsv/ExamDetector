@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -73,10 +74,11 @@ fun VerResultadoImagen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp)
     ) {
         Text(
             text = "Resultados de la Imagen",
-            fontSize = 24.sp,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .padding(16.dp)
@@ -85,19 +87,17 @@ fun VerResultadoImagen(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(bottom = 16.dp)
                 ) {
                     Text(
                         text = "Imagen Original",
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Image(
                         bitmap = bitmap.asImageBitmap(),
@@ -106,7 +106,7 @@ fun VerResultadoImagen(
                             .fillMaxWidth()
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color.Gray)
+                            .background(MaterialTheme.colorScheme.surface)
                             .padding(16.dp)
                     )
                 }
@@ -117,9 +117,8 @@ fun VerResultadoImagen(
                 ) {
                     Text(
                         text = "Imagen Procesada",
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                     if (processedBitmap != null) {
                         Image(
@@ -129,7 +128,7 @@ fun VerResultadoImagen(
                                 .fillMaxWidth()
                                 .aspectRatio(1f)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(Color.Gray)
+                                .background(MaterialTheme.colorScheme.surface)
                                 .padding(16.dp)
                         )
                     } else {
@@ -142,12 +141,61 @@ fun VerResultadoImagen(
                     }
                 }
             }
+            item {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Datos extraidos de la imagen",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Row {
+                        val respuestas = Sesion.instance.examAnswers
+                        Text(
+                            text = "Respuestas: $respuestas",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                    Row {
+                        val codigos = Sesion.instance.examCode
+                        Text(
+                            text = "Codigos: $codigos",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                    Row {
+                        val dni = Sesion.instance.dniNie
+                        Text(
+                            text = "DNI/NIE: $dni",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+
+
+                    }
+                    Row {
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
+                }
+            }
         }
     }
 }
 
 
+
 fun procesarImagen(imagenOriginal: Mat, context: Context): Mat {
+    //vamos a preparar la api sesion para que se pueda usar en el procesador de imagen
+    //borrando los datos anteriores
+    Sesion.instance.clearSession()
     Log.d("ExamDetector", "Iniciando procesamiento de imagen...")
     runBlocking {
         val dni = withContext(Dispatchers.Default) { ExtraerDNI.init(imagenOriginal, context) }
@@ -169,4 +217,6 @@ fun procesarImagen(imagenOriginal: Mat, context: Context): Mat {
     Log.d("ExamDetector", "Procesamiento de imagen finalizado.")
     return imagenOriginal
 }
+
+
 

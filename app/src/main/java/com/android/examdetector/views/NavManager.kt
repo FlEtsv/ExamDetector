@@ -13,7 +13,10 @@ fun NavManager() {
     val navController = rememberNavController()
     val imageViewModel: ImageViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = "Seleccionarimagen") {
+    NavHost(navController = navController, startDestination = "CargadoView") {
+        composable("CargadoView") {
+            CargadoView(navController)
+        }
 
         composable("Seleccionarimagen") {
             Seleccionarimagen(navController, imageViewModel)
