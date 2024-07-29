@@ -21,8 +21,15 @@ fun NavManager() {
         composable("Seleccionarimagen") {
             Seleccionarimagen(navController, imageViewModel)
         }
-        composable("VerResultadoImagen") {
-            VerResultadoImagen(navController, imageViewModel, context = LocalContext.current)
+        composable("VerResultadoImagen/{checkedValue}/{guardarImagenBordes}/{guardarImagenFinal}") {backStackEntry ->
+            val checkedValue = backStackEntry.arguments?.getString("checkedValue")?.toBoolean()
+            val guardarImagenBordes = backStackEntry.arguments?.getString("guardarImagenBordes")?.toBoolean()
+            val guardarImagenFinal = backStackEntry.arguments?.getString("guardarImagenFinal")?.toBoolean()
+            if (checkedValue != null && guardarImagenBordes != null && guardarImagenFinal != null) {
+                        VerResultadoImagen(navController, imageViewModel, context = LocalContext.current,checkedValue = checkedValue, guardarImagenBordes, guardarImagenFinal)
+
+
+            }
         }
     }
 }

@@ -9,7 +9,8 @@ import java.util.ArrayList
 
 class ExtraerDNI {
     companion object {
-        fun init(image: Mat, context: Context): Mat {
+
+        fun init(image: Mat, context: Context, guardarDniBordes: Boolean,guardarDniFinal:Boolean): Mat {
 
             // Convert the image to grayscale
             val gray = Mat()
@@ -26,8 +27,11 @@ class ExtraerDNI {
             // Find contours
             val contours: MutableList<MatOfPoint> = ArrayList()
             val hierarchy = Mat()
-            Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
-            saveImageToGallery(hierarchy, context, "EdgesDni.png")
+            Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE)
+            if(guardarDniBordes ) {
+                saveImageToGallery(edges, context, "bordesImgDni.png")
+            }
+
 
             // Calculate 50% of the total image area
             val halfTotalArea = 0.5 * image.rows() * image.cols()
@@ -49,13 +53,17 @@ class ExtraerDNI {
                 // Crop and save the DNI region
                 dni = Mat(image, dniRect)
                 Sesion.instance.dniCoordinates = dniRect // Asignar el nuevo objeto Rect a dniCoordinates
-                saveImageToGallery(dni, context, "Dni.png")
+
 
                 println("DNI saved as Dni.png")
             } else {
                 println("DNI not detected.")
             }
-
+            if(guardarDniFinal) {
+                if (dni != null) {
+                    saveImageToGallery(dni, context, "DniReconocido.png")
+                }
+            }
             return dni ?: throw RuntimeException("DNI not found.")
         }
     }

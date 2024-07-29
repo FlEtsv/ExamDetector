@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,7 +20,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -47,7 +53,9 @@ import com.android.examdetector.utils.bitmapToBase64
 fun Seleccionarimagen(navController: NavController, imageViewModel: ImageViewModel) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-
+    var checked by remember { mutableStateOf(false)}
+    var checkedImageFinal by remember { mutableStateOf(false)}
+    var checkedImageBorder by remember { mutableStateOf(false)}
     var hasCameraPermission by remember { mutableStateOf(false) }
     var hasGalleryPermission by remember { mutableStateOf(false) }
 
@@ -58,7 +66,7 @@ fun Seleccionarimagen(navController: NavController, imageViewModel: ImageViewMod
             val photo: Bitmap = result.data?.extras?.get("data") as Bitmap
             val photoBase64 = bitmapToBase64(photo)
             imageViewModel.image.value = photoBase64
-            navController.navigate("VerResultadoImagen")
+            navController.navigate("VerResultadoImagen/${checked.toString()}/${checkedImageBorder.toString()}/${checkedImageFinal.toString()}")
         }
     }
 
@@ -75,7 +83,7 @@ fun Seleccionarimagen(navController: NavController, imageViewModel: ImageViewMod
             if (bitmap != null) {
                 val photoBase64 = bitmapToBase64(bitmap)
                 imageViewModel.image.value = photoBase64
-                navController.navigate("VerResultadoImagen")
+                navController.navigate("VerResultadoImagen/${checked.toString()}/${checkedImageBorder.toString()}/${checkedImageFinal.toString()}")
             }
         }
     }
@@ -128,66 +136,137 @@ fun Seleccionarimagen(navController: NavController, imageViewModel: ImageViewMod
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Box ( modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())
     ) {
-        Row {
-            Spacer(modifier = Modifier.height(50.dp))
-        }
-        Row {
-
-
-        Text(
-            text = "Seleccionar Imagen",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        }
-        Row {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Puede seleccionar la imagen desde la cámara o la galería. La imagen seleccionada será procesada y se mostrará el resultado junto con la imagen original.",
-                fontSize = 16.sp,
-                color = Color.Gray
-            )
-        }
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(onClick = {
-                if (hasCameraPermission) {
-                    val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                    cameraLauncher.launch(cameraIntent)
-                } else {
-                    requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                }
-            }, modifier = Modifier.size(150.dp, 100.dp)) {
-                Text(text = "Abrir Cámara")
+            Row {
+                Spacer(modifier = Modifier.height(70.dp))
             }
-            Spacer(modifier = Modifier.width(24.dp)) // Use width for horizontal spacing
-            Button(onClick = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val galleryIntent =
-                        Intent(Intent.ACTION_OPEN_DOCUMENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                    galleryLauncher.launch(galleryIntent)
-                }
-                if (hasGalleryPermission) {
-                    val galleryIntent =
-                        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                    galleryLauncher.launch(galleryIntent)
-                } else {
-                    requestGalleryPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-            }, modifier = Modifier.size(150.dp, 100.dp)) {
-                Text(text = "Abrir Galería")
+            Row {
+
+
+                Text(
+                    text = "Seleccionar Imagen",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
             }
+
+            Row {
+                Spacer(modifier = Modifier.height(25.dp))
+            }
+            Row {
+                Text(
+                    text = "Puede seleccionar la imagen desde la cámara o la galería. La imagen seleccionada será procesada y se mostrará el resultado junto con la imagen original.",
+                    fontSize = 20.sp,
+                    color = Color.Gray
+                )
+            }
+            Row {
+                Spacer(modifier = Modifier.height(25.dp))
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                Button(onClick = {
+                    if (hasCameraPermission) {
+                        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                        cameraLauncher.launch(cameraIntent)
+                    } else {
+                        requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                }, modifier = Modifier.size(150.dp, 100.dp)) {
+                    Text(text = "Abrir Cámara")
+                }
+                Spacer(modifier = Modifier.width(24.dp)) // Use width for horizontal spacing
+                Button(onClick = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        val galleryIntent =
+                            Intent(Intent.ACTION_OPEN_DOCUMENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                        galleryLauncher.launch(galleryIntent)
+                    }
+                    if (hasGalleryPermission) {
+                        val galleryIntent =
+                            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                        galleryLauncher.launch(galleryIntent)
+                    } else {
+                        requestGalleryPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
+                }, modifier = Modifier.size(150.dp, 100.dp)) {
+                    Text(text = "Abrir Galería")
+                }
+
+            }
+            Row {
+                Spacer(modifier = Modifier.height(25.dp))
+            }
+            Row(modifier = Modifier
+                .padding(8.dp)
+                .fillMaxSize())
+            {
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(text = "¿Quieres guardar la imagen Procesada en la galería?", fontSize = 20.sp)
+                Checkbox(checked = checked,
+                    onCheckedChange = { checked = it },
+                    colors = CheckboxDefaults.colors(
+                        checkmarkColor = Color.White,
+                        checkedColor = Color.Blue,
+                        uncheckedColor = Color.Gray
+                    )
+                )
+
+            }
+            Row {
+                Spacer(modifier = Modifier.height(25.dp))
+
+            }
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxSize()
+            ) {
+                Text(text ="¿Quieres guardar la imagen que OpenCv reconoce?", fontSize = 20.sp)
+                Checkbox(checked = checkedImageBorder,
+                    onCheckedChange = { checkedImageBorder = it },
+                    colors = CheckboxDefaults.colors(
+                        checkmarkColor = Color.White,
+                        checkedColor = Color.Blue,
+                        uncheckedColor = Color.Gray
+                    )
+                )
+            }
+            Row {
+                Spacer(modifier = Modifier.height(25.dp))
+
+            }
+            Row (
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxSize()
+            ){
+                Text(text ="¿Quieres guardar la imagen que OpenCv recortará?", fontSize = 20.sp)
+                Checkbox(checked = checkedImageFinal,
+                    onCheckedChange = { checkedImageFinal = it },
+                    colors = CheckboxDefaults.colors(
+                        checkmarkColor = Color.White,
+                        checkedColor = Color.Blue,
+                        uncheckedColor = Color.Gray
+                    )
+                )
+            }
+
         }
     }
+
 }
+

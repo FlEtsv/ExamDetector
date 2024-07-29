@@ -9,6 +9,7 @@ class Sesion {
     var dniCoordinates = Rect()
     val columnCoordinates = mutableListOf<Rect>()
 
+
     companion object {
         val instance: Sesion by lazy { Sesion() }
     }

@@ -10,20 +10,22 @@ import kotlin.math.sqrt
 
 class ExtraerColumnas {
     companion object {
-        fun init(image: Mat, context: Context): List<Mat> {
-            val columns = extractColumns(image)
+        fun init(image: Mat, context: Context, guardarDniBordes :Boolean, guardarDniFinal :Boolean): List<Mat> {
+            val columns = extractColumns(image,context, guardarDniBordes)
 
             // Process each column to find things within them
-            var columnNumber = 1
-            for (column in columns) {
-                //saveImageToGallery(column, context, "column_$columnNumber.png")
-                //println("Column $columnNumber saved as column_$columnNumber.png")
-                columnNumber++
+            if(guardarDniFinal) {
+                var columnNumber = 1
+                for (column in columns) {
+                    saveImageToGallery(column, context, "column_$columnNumber.png")
+                    println("Column $columnNumber saved as column_$columnNumber.png")
+                    columnNumber++
+                }
             }
             return columns
         }
 
-        fun extractColumns(imagePath: Mat): List<Mat> {
+        fun extractColumns(imagePath: Mat, context : Context, guardarDniBordes: Boolean): List<Mat> {
 
 
             // Convert the image to grayscale
@@ -40,7 +42,10 @@ class ExtraerColumnas {
             // Find contours
             val contours: MutableList<MatOfPoint> = ArrayList()
             val hierarchy = Mat()
-            Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE)
+            Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
+            if(guardarDniBordes) {
+                saveImageToGallery(edges, context, "bordesImgDni.png")
+            }
 
             // Sort contours by their position on the X axis (from left to right)
             contours.sortBy { Imgproc.boundingRect(it).x }

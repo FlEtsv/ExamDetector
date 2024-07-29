@@ -194,7 +194,7 @@ object ProcesadorImagen {
         }
 
         // Ajustar los parámetros según sea necesario 100, 30, 13, 21 valores clave
-        Imgproc.HoughCircles(imagenRectangulo, circulos, Imgproc.CV_HOUGH_GRADIENT, 1.0, minDist.toDouble(), 100.0, 30.0, 21, 37)
+        Imgproc.HoughCircles(imagenRectangulo, circulos, Imgproc.CV_HOUGH_GRADIENT, 1.0, minDist.toDouble(), 100.0, 30.0, 21, 38)
 
         val centrosCirculos = ArrayList<Point>()
         val radiosCirculos = ArrayList<Int>()

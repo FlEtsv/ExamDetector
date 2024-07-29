@@ -23,15 +23,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.R
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.android.examdetector.utils.ImageViewModel
 import com.android.examdetector.utils.bitmapToMat
 import com.android.examdetector.utils.matToBitmap
+import com.android.examdetector.utils.saveImageToGallery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -47,7 +50,11 @@ import org.opencv.samples.recorder.Sesion
 fun VerResultadoImagen(
     navController: NavController,
     imageViewModel: ImageViewModel,
-    context: Context
+    context: Context,
+    checkedValue: Boolean,
+    guardarImagenBordes: Boolean,
+    guardarImagenFinal : Boolean
+
 ) {
     val fotoBase64 = imageViewModel.image.value ?: ""
     val bytes = Base64.decode(fotoBase64, Base64.DEFAULT)
@@ -62,8 +69,11 @@ fun VerResultadoImagen(
         if (!isImagenProcesed && !isProcessCompleted) {
             coroutineScope.launch(Dispatchers.Default) {
                 val imagenOriginal = bitmapToMat(bitmap)
-                val imagenProcesada = procesarImagen(imagenOriginal, context)
+                val imagenProcesada = procesarImagen(imagenOriginal, context,guardarImagenBordes, guardarImagenFinal)
                 processedBitmap = matToBitmap(imagenProcesada)
+                if(checkedValue) {
+                    saveImageToGallery(bitmapToMat(processedBitmap!!), context, "Imagen_final")
+                }
                 isImagenProcesed = true
                 isProcessCompleted = true
             }
@@ -92,58 +102,7 @@ fun VerResultadoImagen(
         ) {
             item {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "Imagen Original",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                    Image(
-                        bitmap = bitmap.asImageBitmap(),
-                        contentDescription = "Imagen seleccionada",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(MaterialTheme.colorScheme.surface)
-                            .padding(16.dp)
-                    )
-                }
-            }
-            item {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Imagen Procesada",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                    if (processedBitmap != null) {
-                        Image(
-                            bitmap = processedBitmap!!.asImageBitmap(),
-                            contentDescription = "Imagen procesada",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(1f)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(MaterialTheme.colorScheme.surface)
-                                .padding(16.dp)
-                        )
-                    } else {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .padding(32.dp)
-                        )
-                    }
-                }
-            }
-            item {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.Start
                 ) {
                     Text(
                         text = "Datos extraidos de la imagen",
@@ -155,6 +114,7 @@ fun VerResultadoImagen(
                         val respuestas = Sesion.instance.examAnswers
                         Text(
                             text = "Respuestas: $respuestas",
+                            fontSize = 16.sp,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.padding(bottom = 8.dp)
@@ -164,6 +124,7 @@ fun VerResultadoImagen(
                         val codigos = Sesion.instance.examCode
                         Text(
                             text = "Codigos: $codigos",
+                            fontSize = 16.sp,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.padding(bottom = 8.dp)
@@ -173,6 +134,7 @@ fun VerResultadoImagen(
                         val dni = Sesion.instance.dniNie
                         Text(
                             text = "DNI/NIE: $dni",
+                            fontSize = 16.sp,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.padding(bottom = 8.dp)
@@ -186,20 +148,81 @@ fun VerResultadoImagen(
                     }
                 }
             }
+            item {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+
+
+
+                    Text(
+                        text = "Imagen Original",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Imagen seleccionada",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(5.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(5.dp)
+                    )
+
+                }
+            }
+            item {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    Text(
+                        text = "Imagen Procesada",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    if (processedBitmap != null) {
+                        Image(
+                            bitmap = processedBitmap!!.asImageBitmap(),
+                            contentDescription = "Imagen procesada",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                                .clip(RoundedCornerShape(5.dp))
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(5.dp)
+                        )
+                    } else {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(32.dp)
+                        )
+                    }
+
+                    Row {
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
+                }
+            }
+
         }
     }
 }
 
 
 
-fun procesarImagen(imagenOriginal: Mat, context: Context): Mat {
+fun procesarImagen(imagenOriginal: Mat, context: Context,guardarimagenBordes: Boolean, guardarImagenFinal : Boolean): Mat {
     //vamos a preparar la api sesion para que se pueda usar en el procesador de imagen
     //borrando los datos anteriores
     Sesion.instance.clearSession()
     Log.d("ExamDetector", "Iniciando procesamiento de imagen...")
     runBlocking {
-        val dni = withContext(Dispatchers.Default) { ExtraerDNI.init(imagenOriginal, context) }
-        val columnas: List<Mat> = withContext(Dispatchers.Default) { ExtraerColumnas.init(imagenOriginal, context) }
+        val dni = withContext(Dispatchers.Default) { ExtraerDNI.init(imagenOriginal, context, guardarDniBordes = guardarimagenBordes, guardarDniFinal = guardarImagenFinal) }
+        val columnas: List<Mat> = withContext(Dispatchers.Default) { ExtraerColumnas.init(imagenOriginal, context, guardarDniBordes = guardarimagenBordes, guardarDniFinal = guardarImagenFinal) }
 
         // Procesar la imagen
         // Procesar cada columna y el DNI
@@ -218,5 +241,9 @@ fun procesarImagen(imagenOriginal: Mat, context: Context): Mat {
     return imagenOriginal
 }
 
+@Preview
+@Composable
+fun VerResultadoImagenPreview() {
 
+}
 
